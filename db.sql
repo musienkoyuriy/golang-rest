@@ -1,0 +1,47 @@
+CREATE DATABASE flourishdb;
+
+USE flourishdb;
+
+CREATE TABLE strains
+(
+  id INT IDENTITY PRIMARY KEY,
+  name VARCHAR(50) NOT NULL,
+  race VARCHAR(50) NOT NULL
+);
+
+TRUNCATE TABLE strains;
+
+CREATE TABLE flavors
+(
+  id INT IDENTITY PRIMARY KEY,
+  name VARCHAR(50) NOT NULL
+);
+
+TRUNCATE TABLE flavors;
+
+CREATE TABLE effects
+(
+  id INT IDENTITY PRIMARY KEY,
+  name VARCHAR(50) NOT NULL,
+  type VARCHAR(50) NOT NULL
+);
+
+TRUNCATE TABLE effects;
+
+CREATE TABLE strain_flavors
+(
+  id INT IDENTITY PRIMARY KEY,
+  name VARCHAR(50) NOT NULL,
+  type VARCHAR(50) NOT NULL
+);
+
+TRUNCATE TABLE strain_flavors;
+
+CREATE TABLE strain_effects
+(
+  id INT IDENTITY PRIMARY KEY,
+  strain_id VARCHAR(50) NOT NULL,
+  effect_id VARCHAR(50) NOT NULL
+);
+
+TRUNCATE TABLE strain_effects
