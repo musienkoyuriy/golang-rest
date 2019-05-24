@@ -93,7 +93,7 @@ func (strainsApi *StrainsAPI) getStrainsByCriteria(w http.ResponseWriter, r *htt
 		return
 	}
 
-	if strains, err := _getStrainsByCriteria(strainsApi.DB, criteria, criteriaValue); err != nil {
+	if strains, err := GetStrainsByCriteria(strainsApi.DB, criteria, criteriaValue); err != nil {
 		print(strains) // TODO remove
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -118,7 +118,7 @@ func (strainsApi *StrainsAPI) deleteStrain(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := _deleteStrain(strainsApi.DB, id); err != nil {
+	if err := DeleteStrain(strainsApi.DB, id); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return

@@ -8,6 +8,7 @@ import (
 	"os"
 )
 
+// InsertDataFromJSON to dynamic fill database from JSON file
 func InsertDataFromJSON(db *sql.DB) {
 	jsonFile, err := os.Open("strains.json")
 
@@ -51,6 +52,10 @@ func InsertDataFromJSON(db *sql.DB) {
 			panic("Error while adding a strain")
 		}
 
+		var strainID int
+
+		err = db.QueryRow("SELECT LAST_INSERT_ID()").Scan(&strainID)
+
 		// ADD FLAVORS
 		for _, flavor := range strain.Flavors {
 			createFlavorQuery := fmt.Sprintf("INSERT IGNORE INTO flavors(name) VALUES('%s')",
@@ -60,6 +65,18 @@ func InsertDataFromJSON(db *sql.DB) {
 
 			if err != nil {
 				panic("Error while adding a flavor")
+			}
+
+			var flavorID int
+
+			err = db.QueryRow("SELECT LAST_INSERT_ID()").Scan(&flavorID)
+
+			createStrainFlavorQuery := fmt.Sprintf("INSERT IGNORE INTO strain_flavors(strainId, flavorId) VALUES('%d', '%d')", strainID, flavorID)
+
+			_, err = db.Exec(createStrainFlavorQuery)
+
+			if err != nil {
+				panic("Error while adding a strain_flavor")
 			}
 		}
 
@@ -79,6 +96,15 @@ func InsertDataFromJSON(db *sql.DB) {
 				if err != nil {
 					panic("Error while adding an effect")
 				}
+
+				var effectID int
+
+				err = db.QueryRow("SELECT LAST_INSERT_ID()").Scan(&effectID)
+
+				createStrainFlavorQuery := fmt.Sprintf("INSERT IGNORE INTO strain_effects(strainId, flavorId) VALUES('%d', '%d')", strainID, effectID)
+
+				_, err = db.Exec(createStrainFlavorQuery)
+
 			}
 		}
 	}

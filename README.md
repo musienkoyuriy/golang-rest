@@ -32,3 +32,25 @@ Things to note:
 - For the MySQL DB, you can use Docker to install a local MySQL container and instructions have been provided for you in the folder `Docker`.
 
 - Your code should be properly documented using `godoc` formatting (https://blog.golang.org/godoc-documenting-go-code)
+
+
+
+## Up & Running
+
+1. Execute schema.sql outside the docker container to create database with tables
+
+```
+mysql --host=127.0.0.1 --user=root -p < schema.sql
+```
+
+2. Run the main script
+
+```
+go run main.go
+```
+
+It will do these actions:
+
+- Creates a database connection
+- Run the script from `import-json-to-db.go` file to fill the database with data appropriate to initial JSON file
+- Then it initializes an http routes

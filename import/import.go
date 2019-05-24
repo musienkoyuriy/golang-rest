@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -17,8 +18,23 @@ type Strain struct {
 	Effects map[string][]string `json:"effects"`
 }
 
+func connectToStrainsDB(user, password, dbname string) {
+	connectionString := fmt.Sprintf("%s:%s@/%s", user, password, dbname)
+
+	var err error
+	db, err := sql.Open("mysql", connectionString)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	InsertDataFromJSON(db)
+}
+
 // InsertDataFromJSON func
 func InsertDataFromJSON(db *sql.DB) {
+	connectToStrainsDB("root", "password", "flourishdb")
+
 	jsonFile, err := os.Open("strains.json")
 
 	if err != nil {
