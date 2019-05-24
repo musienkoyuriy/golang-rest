@@ -43,10 +43,10 @@ Things to note:
 mysql --host=127.0.0.1 --user=root -p < schema.sql
 ```
 
-2. Run the main script
+2. Run the files from main package
 
 ```
-go run main.go
+go run main.go model.go import-json-to-db.go 
 ```
 
 It will do these actions:
