@@ -16,11 +16,13 @@ import (
 
 var strains []Strain
 
+// StrainsAPI struct
 type StrainsAPI struct {
 	Router *mux.Router
 	DB     *sql.DB
 }
 
+// Init the database and connection
 func (strainsApi *StrainsAPI) Init(user, password, dbname string) {
 	connectionString := fmt.Sprintf("%s:%s@/%s", user, password, dbname)
 
@@ -57,8 +59,8 @@ func (strainsApi *StrainsAPI) initRoutes() {
 }
 
 func main() {
-	strainsApi := StrainsAPI{}
-	strainsApi.Init("root", "password", "flourishdb")
+	strainsAPI := StrainsAPI{}
+	strainsAPI.Init("root", "password", "flourishdb")
 }
 
 func insertDataFromJSON(db *sql.DB) {
@@ -77,9 +79,26 @@ func insertDataFromJSON(db *sql.DB) {
 	json.Unmarshal(byteValue, &strains)
 
 	for _, strain := range strains {
+		// ADD RACE
+		createRaceQuery := fmt.Sprintf("INSERT IGNORE INTO races(name) VALUES('%s')", strain.Race)
+
+		_, err = db.Exec(createRaceQuery)
+
+		if err != nil {
+			panic("Error while adding a race")
+		}
+
+		var raceID int
+
+		err = db.QueryRow("SELECT LAST_INSERT_ID()").Scan(&raceID)
+
+		if err != nil {
+			panic("Error while getting an new race ID")
+		}
+
 		// ADD STRAIN
-		createStrainQuery := fmt.Sprintf("INSERT INTO strains(id, name, race) VALUES('%d','%s','%s')",
-			strain.ID, strain.Name, strain.Race)
+		createStrainQuery := fmt.Sprintf("INSERT INTO strains(name, raceId) VALUES('%s','%d')",
+			strain.Name, raceID)
 
 		_, err = db.Exec(createStrainQuery)
 
