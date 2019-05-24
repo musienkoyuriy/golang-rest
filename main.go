@@ -120,7 +120,7 @@ func (strainsApi *StrainsAPI) initRoutes() {
 func main() {
 	// createDatabase()
 	strainsApi := StrainsAPI{}
-	strainsApi.Init("root", "password", "strains")
+	strainsApi.Init("root", "password", "flourishdb")
 }
 
 func createDatabase() {
@@ -153,10 +153,10 @@ func insertDataFromJSON(db *sql.DB) {
 
 	json.Unmarshal(byteValue, &strains)
 
-	for i := 0; i < len(strains); i++ {
+	for _, strain := range strains {
 		// ADD STRAIN
 		createStrainQuery := fmt.Sprintf("INSERT INTO strains(id, name, race) VALUES('%d','%s','%s')",
-			strains[i].ID, strains[i].Name, strains[i].Race)
+			strain.ID, strain.Name, strain.Race)
 
 		_, err = db.Exec(createStrainQuery)
 
@@ -165,9 +165,7 @@ func insertDataFromJSON(db *sql.DB) {
 		}
 
 		// ADD FLAVORS
-		for j := 0; j < len(strains[i].Flavors); j++ {
-			flavor := strains[i].Flavors[j]
-
+		for _, flavor := range strain.Flavors {
 			createFlavorQuery := fmt.Sprintf("INSERT IGNORE INTO flavors(name) VALUES('%s')",
 				flavor)
 
@@ -178,10 +176,10 @@ func insertDataFromJSON(db *sql.DB) {
 			}
 		}
 
-		fmt.Println(strains[i].Effects)
+		fmt.Println(strain.Effects)
 
 		// ADD EFFECTS
-		for effectType, effectNames := range strains[i].Effects {
+		for effectType, effectNames := range strain.Effects {
 			fmt.Println(effectType)
 			fmt.Println(effectNames)
 
