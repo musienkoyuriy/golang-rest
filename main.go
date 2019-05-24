@@ -33,7 +33,7 @@ func (strainsApi *StrainsAPI) Init(user, password, dbname string) {
 
 	InsertDataFromJSON(strainsApi.DB)
 
-	// strainsApi.initRoutes()
+	strainsApi.initRoutes()
 }
 
 // Strain struct

@@ -32,7 +32,9 @@ CREATE TABLE IF NOT EXISTS strain_flavors
 (
     id INT PRIMARY KEY AUTO_INCREMENT,
     strainId INT NOT NULL,
-    flavorId INT NOT NULL
+    flavorId INT NOT NULL,
+    FOREIGN KEY (strainId)  REFERENCES strains (id),
+    FOREIGN KEY (flavorId)  REFERENCES flavors (id)
 );
 
 TRUNCATE TABLE strain_flavors;
@@ -41,7 +43,9 @@ CREATE TABLE IF NOT EXISTS strain_effects
 (
     id INT PRIMARY KEY AUTO_INCREMENT,
     strainId INT NOT NULL,
-    effectId INT NOT NULL
+    effectId INT NOT NULL,
+    FOREIGN KEY (strainId) REFERENCES strains (id),
+    FOREIGN KEY (effectId) REFERENCES effects (id)
 );
 
 TRUNCATE TABLE strain_effects;

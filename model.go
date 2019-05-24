@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 )
 
 func (strain *Strain) createStrain(db *sql.DB) error {
@@ -126,10 +127,33 @@ func (strain *Strain) editStrainByID(db *sql.DB) error {
 		return err
 	}
 
-	// editStrainQuery := fmt.Sprintf("UPDATE strains SET name='%s', race='%s', flavors='%s', effects='%s' WHERE id='%d'", strain.Name, strain.Race, strain.Flavors, strain.Effects, strain.ID)
+	editStrainQuery := fmt.Sprintf("SELECT id FROM flavors WHERE name IN (%s)", joinFlavors(strain.Flavors))
 
-	editStrainQuery := fmt.Sprintf("UPDATE")
+	flavors, err := db.Query(editStrainQuery)
 
-	_, err = db.Exec(editStrainQuery)
+	if err != nil {
+		return err
+	}
+
+	flavorIds := make([]int, 100)
+
+	for flavors.Next() {
+		var flavorID int
+
+		if err = flavors.Scan(&flavorID); err != nil {
+			return err
+		}
+
+		flavorIds = append(flavorIds, flavorID)
+	}
+
+	// for i := 0; i < len(flavorIds) {
+	// 	queryString := fmt.Sprintf("INSERT INTO strain_flavors (strainId, flavorId) VALUES (%d, %d), (%d, %d), (%d, %d)", strain.ID, flavorIds[0], strain.ID, flavorIds[1], strain.ID, flavorIds[2])
+	// }
+
 	return err
+}
+
+func joinFlavors(flavors []string) string {
+	return strings.Join(flavors[:], ", ")
 }
