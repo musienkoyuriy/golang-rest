@@ -33,7 +33,7 @@ func (strainsApi *StrainsAPI) Init(user, password, dbname string) {
 
 	InsertDataFromJSON(strainsApi.DB)
 
-	strainsApi.initRoutes()
+	// strainsApi.initRoutes()
 }
 
 // Strain struct
@@ -77,6 +77,11 @@ func (strainsApi *StrainsAPI) createNewStrain(w http.ResponseWriter, r *http.Req
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Internal Server Error"))
 	}
+
+	response, _ := json.Marshal(strain)
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(response)
 }
 
 func (strainsApi *StrainsAPI) getStrainsByCriteria(w http.ResponseWriter, r *http.Request) {

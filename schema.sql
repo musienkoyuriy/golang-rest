@@ -2,52 +2,46 @@ CREATE DATABASE IF NOT EXISTS flourishdb;
 
 USE flourishdb;
 
-CREATE TABLE strains
+CREATE TABLE IF NOT EXISTS strains
 (
-    id INT PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
-    raceId INT
+    race VARCHAR(50) NOT NULL
 );
 
 TRUNCATE TABLE strains;
 
-CREATE TABLE races
+CREATE TABLE IF NOT EXISTS flavors
 (
-    id INT PRIMARY KEY,
-    name VARCHAR(50)
-);
-
-CREATE TABLE flavors
-(
-    id INT PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL
 );
 
 TRUNCATE TABLE flavors;
 
-CREATE TABLE effects
+CREATE TABLE IF NOT EXISTS effects
 (
-    id INT PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) NOT NULL,
     type VARCHAR(50) NOT NULL
 );
 
 TRUNCATE TABLE effects;
 
-CREATE TABLE strain_flavors
+CREATE TABLE IF NOT EXISTS strain_flavors
 (
-    id INT PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     strainId INT NOT NULL,
     flavorId INT NOT NULL
 );
 
 TRUNCATE TABLE strain_flavors;
 
-CREATE TABLE strain_effects
+CREATE TABLE IF NOT EXISTS strain_effects
 (
-    id INT PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     strainId INT NOT NULL,
     effectId INT NOT NULL
 );
 
-TRUNCATE TABLE strain_effects
+TRUNCATE TABLE strain_effects;

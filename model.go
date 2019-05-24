@@ -5,7 +5,6 @@ import (
 	"fmt"
 )
 
-//TODO
 func (strain *Strain) createStrain(db *sql.DB) error {
 	var err error
 	createStrainQuery := fmt.Sprintf("INSERT INTO strains(name, race, flavors, effects) VALUES('%s','%s','%s', '%s')",
@@ -17,7 +16,7 @@ func (strain *Strain) createStrain(db *sql.DB) error {
 		return err
 	}
 
-	err = db.QueryRow("SELECT LAST_INSERT_ID()").Scan(&strain.ID)
+	_ = CreateStrainWithData(db, strain)
 
 	if err != nil {
 		return err
@@ -46,12 +45,10 @@ func getStrainsByEffect(db *sql.DB, effectName string) ([]Strain, error) {
 					INNER JOIN strain_effects efs
 					INNER JOIN flavors f
 					INNER JOIN strain_flavors sf
-					INNER JOIN races r
 					on efs.strainId = s.id
 					and ef.id = efs.effectId
 					and f.id = sf.flavorId
 					and s.id = sf.strainId
-					and r.id = s.raceId
 					WHERE s.id IN strainsWithEffect
 		`
 
@@ -78,25 +75,10 @@ func getStrainsByEffect(db *sql.DB, effectName string) ([]Strain, error) {
 	return strains, nil
 }
 
-// TODO
 func GetStrainsByCriteria(db *sql.DB, criteria string, criteriaValue string) ([]Strain, error) {
 	var err error
-	getStrainsByNameQuery := `
-		SELECT
-			strains.id, strains.name, races.name, flavors.name, effects.name, effects.type, 
-		FROM strains
-		INNER JOIN effects
-		INNER JOIN strain_effects
-		INNER JOIN flavors
-		INNER JOIN strain_flavors
-		INNER JOIN races
-		ON strain_effects.strain_id = strains.id
-		AND effects.id = strain_effects.effectId
-		AND flavors.id = strain_flavors.flavorId
-		AND strains.id = strain_flavors.strainId
-		AND races.id = strains.raceId
-		WHERE name = ?
-	`
+
+	getStrainsByNameQuery := fmt.Sprintf("SELECT strains.id, strains.name, flavors.name, effects.name, effects.type FROM strains INNER JOIN effects INNER JOIN strain_effects INNER JOIN flavors INNER JOIN strain_flavors ON strain_effects.strain_id = strains.id AND effects.id = strain_effects.effectId AND flavors.id = strain_flavors.flavorId AND strains.id = strain_flavors.strainId WHERE %s = %s", criteria, criteriaValue)
 
 	rows, err := db.Query(getStrainsByNameQuery)
 
@@ -130,8 +112,24 @@ func DeleteStrain(db *sql.DB, id int) error {
 
 //TODO
 func (strain *Strain) editStrainByID(db *sql.DB) error {
-	editStrainQuery := fmt.Sprintf("UPDATE strains SET name='%s', race='%s', flavors='%s', effects='%s' WHERE id='%d'", strain.Name, strain.Race, strain.Flavors, strain.Effects, strain.ID)
+	deleteStrainFlavorsTableQuery := fmt.Sprintf("DELETE FROM strain_flavors WHERE strainId = %d", strain.ID)
+	_, err := db.Exec(deleteStrainFlavorsTableQuery)
 
-	_, err := db.Exec(editStrainQuery)
+	if err != nil {
+		return err
+	}
+
+	deleteStrainEffectsTableQuery := fmt.Sprintf("DELETE FROM strain_effects WHERE strainId = %d", strain.ID)
+	_, err = db.Exec(deleteStrainEffectsTableQuery)
+
+	if err != nil {
+		return err
+	}
+
+	// editStrainQuery := fmt.Sprintf("UPDATE strains SET name='%s', race='%s', flavors='%s', effects='%s' WHERE id='%d'", strain.Name, strain.Race, strain.Flavors, strain.Effects, strain.ID)
+
+	editStrainQuery := fmt.Sprintf("UPDATE")
+
+	_, err = db.Exec(editStrainQuery)
 	return err
 }
