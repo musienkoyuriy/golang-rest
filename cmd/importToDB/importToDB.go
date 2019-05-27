@@ -11,7 +11,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// StrainID is an alias for an integer type
 type StrainID int
+
+// Strain structure is a data model for main entity - Strain
+// It has ID, Name, Race, Flavors and Effects fields
 type Strain struct {
 	ID      int                 `json:"id"`
 	Name    string              `json:"name"`
@@ -33,7 +37,8 @@ func main() {
 	InsertDataFromJSON(db)
 }
 
-// CreateStrainWithData func
+// CreateStrainWithData func iterares over a JSON structure, parse it
+// and inserts data in an appropriate database tables
 func CreateStrainWithData(db *sql.DB, strain Strain) {
 	// ADD STRAIN
 	createStrainQuery := fmt.Sprintf("INSERT INTO strains(name, race) VALUES('%s', '%s')",
