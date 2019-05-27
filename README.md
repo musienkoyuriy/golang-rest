@@ -79,7 +79,8 @@ race VARCHAR(50) NOT NULL,
 flavors SET('Earthy', 'Chemical', 'Pine'),
 effects_positive SET('Relaxed', 'Hungry', 'Happy', 'Sleepy'),
 effects_negative SET('Dizzy'),
-effects_medical SET('Depression', 'Insomnia', 'Pain', 'Stress', 'Lack of Appetite');
+effects_medical SET('Depression', 'Insomnia', 'Pain', 'Stress', 'Lack of Appetite')
+);
 ```
 
 But I implemented this task using the relational model with multiple tables due to task requirements
