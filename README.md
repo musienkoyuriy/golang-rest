@@ -73,13 +73,13 @@ We can use a `SET` operator to store the data collections in one column
 
 ```
 CREATE TABLE strains (
-id NOT NULL AUTO_INCREMENT,
-name  VARCHAR(50) NOT NULL,
-race VARCHAR(50) NOT NULL,
-flavors SET('Earthy', 'Chemical', 'Pine'),
-effects_positive SET('Relaxed', 'Hungry', 'Happy', 'Sleepy'),
-effects_negative SET('Dizzy'),
-effects_medical SET('Depression', 'Insomnia', 'Pain', 'Stress', 'Lack of Appetite')
+  id NOT NULL AUTO_INCREMENT,
+  name  VARCHAR(50) NOT NULL,
+  race VARCHAR(50) NOT NULL,
+  flavors SET('Earthy', 'Chemical', 'Pine'),
+  effects_positive SET('Relaxed', 'Hungry', 'Happy', 'Sleepy'),
+  effects_negative SET('Dizzy'),
+  effects_medical SET('Depression', 'Insomnia', 'Pain', 'Stress', 'Lack of Appetite')
 );
 ```
 
