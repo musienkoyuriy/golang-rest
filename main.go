@@ -108,16 +108,6 @@ func (strainsApi *StrainsAPI) getStrainsByCriteria(w http.ResponseWriter, r *htt
 	sendJSONResponse(w, response)
 }
 
-func sendHTTPError(w http.ResponseWriter, message string, statusCode int) {
-	w.WriteHeader(statusCode)
-	w.Write([]byte(message))
-}
-
-func sendJSONResponse(w http.ResponseWriter, response []byte) {
-	w.WriteHeader(http.StatusOK)
-	w.Write(response)
-}
-
 // deleteStrain is /strain/{id} route handler
 // it deletes an existing strain by specified ID parameter
 func (strainsApi *StrainsAPI) deleteStrain(w http.ResponseWriter, r *http.Request) {
@@ -164,4 +154,17 @@ func (strainsApi *StrainsAPI) editStrain(w http.ResponseWriter, r *http.Request)
 	response, _ := json.Marshal(strain)
 
 	sendJSONResponse(w, response)
+}
+
+// sendHTTPError takes response writer, error message and status code
+// and send it for client
+func sendHTTPError(w http.ResponseWriter, message string, statusCode int) {
+	w.WriteHeader(statusCode)
+	w.Write([]byte(message))
+}
+
+// sendJSONResponse takes response writer and marshaled JSON for response
+func sendJSONResponse(w http.ResponseWriter, response []byte) {
+	w.WriteHeader(http.StatusOK)
+	w.Write(response)
 }
