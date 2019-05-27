@@ -20,7 +20,8 @@ type StrainsAPI struct {
 	DB     *sql.DB
 }
 
-// Init the database and connection
+// Init method belongs to StrainsAPI structure and
+// intended for database connection and routes initialization
 func (strainsApi *StrainsAPI) Init(user, password, dbname string) {
 	connectionString := fmt.Sprintf("%s:%s@/%s", user, password, dbname)
 
@@ -31,12 +32,11 @@ func (strainsApi *StrainsAPI) Init(user, password, dbname string) {
 		log.Fatal(err)
 	}
 
-	InsertDataFromJSON(strainsApi.DB)
-
 	strainsApi.initRoutes()
 }
 
-// Strain struct
+// Strain structure is a data model for main entity - Strain
+// It has ID, Name, Race, Flavors and Effects fields
 type Strain struct {
 	ID      int                 `json:"id"`
 	Name    string              `json:"name"`
@@ -45,22 +45,28 @@ type Strain struct {
 	Effects map[string][]string `json:"effects"`
 }
 
+// initRoutes iniializes routes for searching strains, adding, editing and deleting
 func (strainsApi *StrainsAPI) initRoutes() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/newStrain", strainsApi.createNewStrain).Methods("POST")
-	router.HandleFunc("/strains/{criteria}{name}", strainsApi.getStrainsByCriteria).Methods("GET")
-	router.HandleFunc("strain/{id}", strainsApi.deleteStrain).Methods("DELETE")
-	router.HandleFunc("strain/{id}", strainsApi.editStrain).Methods("PUT")
+	router.HandleFunc("/strains", strainsApi.getStrainsByCriteria).Methods("GET")
+	router.HandleFunc("/strains/{id}", strainsApi.deleteStrain).Methods("DELETE")
+	router.HandleFunc("/editStrain", strainsApi.editStrain).Methods("PUT")
 
 	log.Fatal(http.ListenAndServe(":8888", router))
 }
 
+// main is an entry point for app
+// calls route's initialization method
 func main() {
 	strainsAPI := StrainsAPI{}
 	strainsAPI.Init("root", "password", "flourishdb")
 }
 
+// createNewStrain is /createNewStrain route handler
+// takes a response and request objects, decode's request body and do appropriate
+// POST request for adding a new strain
 func (strainsApi *StrainsAPI) createNewStrain(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -68,49 +74,52 @@ func (strainsApi *StrainsAPI) createNewStrain(w http.ResponseWriter, r *http.Req
 	decoder := json.NewDecoder(r.Body)
 
 	if err := decoder.Decode(&strain); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Bad Request"))
+		sendHTTPError(w, "Bad Request", http.StatusBadRequest)
+		return
 	}
 	defer r.Body.Close()
 
 	if err := strain.createStrain(strainsApi.DB); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal Server Error"))
+		sendHTTPError(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
 
 	response, _ := json.Marshal(strain)
 
-	w.WriteHeader(http.StatusOK)
-	w.Write(response)
+	sendJSONResponse(w, response)
 }
 
+// getStrainsByCriteria is /strains route handler
+// takes a response and request objects, get's a query parameter to determine a search criteria
+// and returns a JSON with matched strai items
 func (strainsApi *StrainsAPI) getStrainsByCriteria(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	vars := mux.Vars(r)
+	vars := r.URL.Query()
 
-	criteria := vars["criteria"]
-	criteriaValue := vars["name"]
-
-	if isValidCriteria(criteria) {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Invalid criteria to search strains"))
-		return
-	}
-
-	if strains, err := GetStrainsByCriteria(strainsApi.DB, criteria, criteriaValue); err != nil {
-		print(strains) // TODO remove
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+	if strains, err := GetStrainsByCriteria(strainsApi.DB, vars); err != nil {
+		print(strains)
+		sendHTTPError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	response, _ := json.Marshal(strains)
 
+	sendJSONResponse(w, response)
+}
+
+func sendHTTPError(w http.ResponseWriter, message string, statusCode int) {
+	w.WriteHeader(statusCode)
+	w.Write([]byte(message))
+}
+
+func sendJSONResponse(w http.ResponseWriter, response []byte) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(response)
 }
 
+// deleteStrain is /strain/{id} route handler
+// it deletes an existing strain by specified ID parameter
 func (strainsApi *StrainsAPI) deleteStrain(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -118,63 +127,41 @@ func (strainsApi *StrainsAPI) deleteStrain(w http.ResponseWriter, r *http.Reques
 	id, err := strconv.Atoi(vars["id"])
 
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Please specify correct strain ID"))
+		sendHTTPError(w, "Please specify correct strain ID", http.StatusBadRequest)
 		return
 	}
 
 	if err := DeleteStrain(strainsApi.DB, id); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		sendHTTPError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	response, _ := json.Marshal(map[string]int{
 		"deletedStrain": id})
 
-	w.WriteHeader(http.StatusOK)
-	w.Write(response)
+	sendJSONResponse(w, response)
 }
 
+// editStrain is /editStrain route handler
+// takes a response and request objects, decode's request body and
+// edits an existing strain record
 func (strainsApi *StrainsAPI) editStrain(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Please specify a valid strain ID"))
-		return
-	}
-
 	var strain Strain
 
 	decoder := json.NewDecoder(r.Body)
 	defer r.Body.Close()
 
 	if err := decoder.Decode(&strain); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Please specify correct strain data to update"))
+		sendHTTPError(w, "Please specify correct strain data to update", http.StatusBadRequest)
 		return
 	}
 
-	strain.ID = id
-
 	if err := strain.editStrainByID(strainsApi.DB); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		sendHTTPError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	response, _ := json.Marshal(strain)
 
-	w.WriteHeader(http.StatusOK)
-	w.Write(response)
-}
-
-func isValidCriteria(criteria string) bool {
-	switch criteria {
-	case "race", "flavor", "effect":
-		return true
-	}
-	return false
+	sendJSONResponse(w, response)
 }

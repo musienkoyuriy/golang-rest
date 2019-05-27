@@ -43,14 +43,19 @@ Things to note:
 mysql --host=127.0.0.1 --user=root -p < schema.sql
 ```
 
-2. Run the files from main package
+2. Run script which will fill in database with data from `strains.json` file
 
 ```
-go run main.go model.go import-json-to-db.go 
+go run cmd/importToDB/importToDB.go
+```
+
+3. Run the app
+
+```
+go run main.go model.go utils.go
 ```
 
 It will do these actions:
 
 - Creates a database connection
-- Run the script from `import-json-to-db.go` file to fill the database with data appropriate to initial JSON file
-- Then it initializes an http routes
+- initializes an http routes
