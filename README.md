@@ -59,3 +59,27 @@ It will do these actions:
 
 - Creates a database connection
 - initializes an http routes
+
+
+## Notes
+
+There are several notes and things to enhance for this REST API:
+
+- For production we need to envisage an SQL Injection
+- For production we should use foreign keys to database constistence
+- Also there is another way to store the data which presented in `strains.json`
+
+We can use a `SET` operator to store the data collections in one column
+
+```
+CREATE TABLE strains (
+id NOT NULL AUTO_INCREMENT,
+name  VARCHAR(50) NOT NULL,
+race VARCHAR(50) NOT NULL,
+flavors SET('Earthy', 'Chemical', 'Pine'),
+effects_positive SET('Relaxed', 'Hungry', 'Happy', 'Sleepy'),
+effects_negative SET('Dizzy'),
+effects_medical SET('Depression', 'Insomnia', 'Pain', 'Stress', 'Lack of Appetite');
+```
+
+But I implemented this task using the relational model with multiple tables due to task requirements
